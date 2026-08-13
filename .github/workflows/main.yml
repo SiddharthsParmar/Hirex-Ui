@@ -1,21 +1,137 @@
-name: GitHub Actions Demo
+name: GitHub Actions CI
 
-# Triggers
+# ============================================================
+# 1. WORKFLOW TRIGGERS
+# ============================================================
 on:
+  # Run CI whenever code is pushed to CITest
   push:
-    branches: [CITest]
+    branches:
+      - CITest
 
+  # Run CI whenever a PR targets CITest
   pull_request:
-    branches: [CITest]
+    branches:
+      - CITest
 
-# Define the execution environment and sequence
+
+# ============================================================
+# 2. PERMISSIONS
+# ============================================================
+# Give the workflow only the permissions it actually needs.
+permissions:
+  contents: read
+
+
+# ============================================================
+# 3. JOBS
+# ============================================================
 jobs:
+
+  # ----------------------------------------------------------
+  # Job: Build and Test
+  # ----------------------------------------------------------
   build-and-test:
+
+    # Name displayed in the GitHub Actions UI
+    name: Build and Test
+
+    # GitHub-hosted runner
     runs-on: ubuntu-latest
 
+    # --------------------------------------------------------
+    # Environment variables available to all steps
+    # --------------------------------------------------------
+    env:
+      NODE_ENV: test
+
+    # --------------------------------------------------------
+    # STEPS
+    # --------------------------------------------------------
     steps:
-      - name: Check out repository code
+
+      # ------------------------------------------------------
+      # Step 1: Checkout repository
+      # ------------------------------------------------------
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run a diagnostic command
-        run: echo "The environment is ready"
+
+      # ------------------------------------------------------
+      # Step 2: Display runner information
+      # ------------------------------------------------------
+      - name: Display environment information
+        run: |
+          echo "Operating System:"
+          uname -a
+
+          echo ""
+          echo "Current directory:"
+          pwd
+
+          echo ""
+          echo "Repository files:"
+          ls -la
+
+
+      # ------------------------------------------------------
+      # Step 3: Setup Node.js
+      # ------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+
+      # ------------------------------------------------------
+      # Step 4: Display Node.js versions
+      # ------------------------------------------------------
+      - name: Check Node.js environment
+        run: |
+          echo "Node.js version:"
+          node --version
+
+          echo "npm version:"
+          npm --version
+
+
+      # ------------------------------------------------------
+      # Step 5: Install dependencies
+      # ------------------------------------------------------
+      # npm ci is preferred in CI because it uses package-lock.json
+      # and produces a reproducible dependency installation.
+      # ------------------------------------------------------
+      - name: Install dependencies
+        run: npm ci
+
+
+      # ------------------------------------------------------
+      # Step 6: Run linting
+      # ------------------------------------------------------
+      - name: Run lint
+        run: npm run lint
+
+
+      # ------------------------------------------------------
+      # Step 7: Run tests
+      # ------------------------------------------------------
+      - name: Run tests
+        run: npm test
+
+
+      # ------------------------------------------------------
+      # Step 8: Build application
+      # ------------------------------------------------------
+      - name: Build application
+        run: npm run build
+
+
+      # ------------------------------------------------------
+      # Step 9: Final diagnostic message
+      # ------------------------------------------------------
+      - name: CI completed successfully
+        run: |
+          echo "======================================"
+          echo "CI pipeline completed successfully!"
+          echo "======================================"
