@@ -1,18 +1,18 @@
-name: Github Actions Demo
+name: GitHub Actions Demo
 
 # triggers
 
 on : 
   push:
     branches:[ CITest ]
-  pull-request:
+  pull_request:
     branches:[ CITest ]
 # 2. Define the execution environment and sequence
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-steps:
-  -name: Check out repository code
-  -uses: actions/checkout@v4
-  -name: Run a diagnostic command
-  -run: echo "The environment is ready"
+    steps:
+      -name: Check out repository code
+      -uses: actions/checkout@v4
+      -name: Run a diagnostic command
+      -run: echo "The environment is ready"
